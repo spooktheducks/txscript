@@ -3,21 +3,37 @@ package main
 import (
 	"encoding/binary"
 	"encoding/hex"
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 )
 
+var file = flag.String("file", "", "The input file containing the raw txscript data (non-hex)")
+
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("must specify input script data as hex string")
-	}
+	flag.Parse()
 
-	hexScript := os.Args[1]
+	var scriptBytes []byte
+	var err error
+	if *file != "" {
+		scriptBytes, err = ioutil.ReadFile(*file)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	} else {
+		if len(flag.Args()) < 1 {
+			fmt.Println("must specify input script data as hex string")
+		}
 
-	scriptBytes, err := hex.DecodeString(hexScript)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		hexScript := os.Args[1]
+
+		scriptBytes, err = hex.DecodeString(hexScript)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 
 	// output := []string{}
